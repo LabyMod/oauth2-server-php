@@ -396,7 +396,7 @@ class AuthorizeController implements AuthorizeControllerInterface
      * @param string $registeredUriString The allowed URI(s) to validate against.  Can be a space-delimited string of URIs to
      *                                    allow for multiple URIs
      * @return bool
-     * @see http://tools.ietf.org/html/rfc6749#section-3.1.2
+     * @see https://tools.ietf.org/html/rfc8252#section-7.3
      */
     protected function validateRedirectUri($inputUri, $registeredUriString)
     {
@@ -407,8 +407,9 @@ class AuthorizeController implements AuthorizeControllerInterface
         $registered_uris = preg_split('/\s+/', $registeredUriString);
         foreach ($registered_uris as $registered_uri) {
             if ($this->config['require_exact_redirect_uri']) {
-                // the input uri is validated against the registered uri using exact match
-                if (strcmp($inputUri, $registered_uri) === 0) {
+                // the input uri is validated against the registered uri using match without port
+                if (strcmp(preg_replace('/:\d{1,6}(?=\/)/', '', $inputUri),
+                        preg_replace('/:\d{1,6}(?=\/)/', '', $registered_uri)) === 0) {
                     return true;
                 }
             } else {
